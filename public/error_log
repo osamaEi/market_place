@@ -1,0 +1,10 @@
+[29-Sep-2024 10:33:45 UTC] PHP Warning:  require(/home3/hypersaledevtqni/public_html/vendor/composer/../symfony/polyfill-php72/bootstrap.php): Failed to open stream: No such file or directory in /home3/hypersaledevtqni/public_html/vendor/composer/autoload_real.php on line 41
+[29-Sep-2024 10:33:45 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home3/hypersaledevtqni/public_html/vendor/composer/../symfony/polyfill-php72/bootstrap.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home3/hypersaledevtqni/public_html/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home3/hypersaledevtqni/public_html/vendor/composer/autoload_real.php(45): {closure}('25072dd6e247008...', '/home3/hypersal...')
+#1 /home3/hypersaledevtqni/public_html/vendor/autoload.php(25): ComposerAutoloaderInit7e8c3c14ff33b199b4a0838993eb8423::getLoader()
+#2 /home3/hypersaledevtqni/public_html/public/index.php(13): require('/home3/hypersal...')
+#3 {main}
+  thrown in /home3/hypersaledevtqni/public_html/vendor/composer/autoload_real.php on line 41
+[06-Nov-2024 08:27:39 UTC] PHP Parse error:  syntax error, unexpected token "protected" in /home3/hypersaledevtqni/public_html/bootstrap/app.php on line 23
+[06-Nov-2024 10:09:09 UTC] PHP Fatal error:  Trait "App\Services\App\Models\CustomerNotification" not found in /home3/hypersaledevtqni/public_html/app/Services/FirebaseService.php on line 12

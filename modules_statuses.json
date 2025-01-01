@@ -1,0 +1,13 @@
+{
+    "Machines": true,
+    "CarModule": true,
+    "Car": true,
+    "House": true,
+    "Electronics": true,
+    "Camping": true,
+    "Services": true,
+    "NormalModule": true,
+    "Bike": true,
+    "Career": true,
+    "Device": true
+}

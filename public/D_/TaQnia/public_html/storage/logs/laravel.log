@@ -1,0 +1,22 @@
+[2024-11-17 13:29:11] local.ERROR: Call to a member function getPath() on null {"exception":"[object] (Error(code: 0): Call to a member function getPath() on null at /home3/hypersaledevtqni/public_html/vendor/nwidart/laravel-modules/src/helpers.php:11)
+[stacktrace]
+#0 /home3/hypersaledevtqni/public_html/Modules/Bike/app/Providers/BikeServiceProvider.php(66): module_path('Bike', 'lang')
+#1 /home3/hypersaledevtqni/public_html/Modules/Bike/app/Providers/BikeServiceProvider.php(21): Modules\\Bike\\Providers\\BikeServiceProvider->registerTranslations()
+#2 /home3/hypersaledevtqni/public_html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Modules\\Bike\\Providers\\BikeServiceProvider->boot()
+#3 /home3/hypersaledevtqni/public_html/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#4 /home3/hypersaledevtqni/public_html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(95): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#5 /home3/hypersaledevtqni/public_html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Illuminate\\Foundation\\Application), Array, Object(Closure))
+#6 /home3/hypersaledevtqni/public_html/vendor/laravel/framework/src/Illuminate/Container/Container.php(690): Illuminate\\Container\\BoundMethod::call(Object(Illuminate\\Foundation\\Application), Array, Array, NULL)
+#7 /home3/hypersaledevtqni/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1119): Illuminate\\Container\\Container->call(Array)
+#8 /home3/hypersaledevtqni/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1100): Illuminate\\Foundation\\Application->bootProvider(Object(Modules\\Bike\\Providers\\BikeServiceProvider))
+#9 [internal function]: Illuminate\\Foundation\\Application->Illuminate\\Foundation\\{closure}(Object(Modules\\Bike\\Providers\\BikeServiceProvider), 'Modules\\\\Bike\\\\Pr...')
+#10 /home3/hypersaledevtqni/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1099): array_walk(Array, Object(Closure))
+#11 /home3/hypersaledevtqni/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/BootProviders.php(17): Illuminate\\Foundation\\Application->boot()
+#12 /home3/hypersaledevtqni/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(316): Illuminate\\Foundation\\Bootstrap\\BootProviders->bootstrap(Object(Illuminate\\Foundation\\Application))
+#13 /home3/hypersaledevtqni/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(187): Illuminate\\Foundation\\Application->bootstrapWith(Array)
+#14 /home3/hypersaledevtqni/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(171): Illuminate\\Foundation\\Http\\Kernel->bootstrap()
+#15 /home3/hypersaledevtqni/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(145): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#16 /home3/hypersaledevtqni/public_html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1188): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#17 /home3/hypersaledevtqni/public_html/public/index.php(17): Illuminate\\Foundation\\Application->handleRequest(Object(Illuminate\\Http\\Request))
+#18 {main}
+"} 
