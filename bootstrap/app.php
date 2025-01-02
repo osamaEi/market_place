@@ -8,7 +8,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',    // Fixed DIR to __DIR__
         api: __DIR__.'/../routes/api.php',     // Fixed DIR to __DIR__
-        commands: __DIR__.'/../routes/console.php',  // Fixed DIR to __DIR__
+        commands: __DIR__.'/../routes/console.php',
+        channels: __DIR__.'/../routes/channels.php',  // Fixed DIR to __DIR__
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {

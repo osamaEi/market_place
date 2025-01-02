@@ -19,16 +19,16 @@ use App\Http\Controllers\Api\Normalads\BikeController;
 use App\Http\Controllers\Api\Normalads\CareerController;
 use App\Http\Controllers\Api\Normalads\MobileController;
 use App\Http\Controllers\Api\Category\CategoryController;
-use App\Http\Controllers\Api\Search\FiltrationController; 
 use App\Http\Controllers\Api\Normalads\PropertyController;
+use App\Http\Controllers\Api\Search\FiltrationController; 
 use App\Http\Controllers\Api\Normalads\NormaladsController;
+use App\Http\Controllers\Api\Conversation\MessageController;
 use App\Http\Controllers\Api\Customers\auth\LoginController;
 use App\Http\Controllers\Api\Commercial\CommercialController;  
 use App\Http\Controllers\Api\Customers\auth\RegisterController;
-use App\Http\Controllers\Api\Customers\Notification\NotifcationController;
 use App\Http\Controllers\Api\Customers\Profile\CountController;
-use App\Http\Controllers\Api\Commercial\CarCommercialController; 
 use App\Http\Controllers\Api\Commercial\BikeCommercialController;
+use App\Http\Controllers\Api\Commercial\CarCommercialController; 
 use App\Http\Controllers\Api\Customers\Profile\ProfileController; 
 use App\Http\Controllers\Api\Commercial\CareerCommercialController;
 use App\Http\Controllers\Api\Commercial\MobileCommercialController; 
@@ -36,6 +36,7 @@ use App\Http\Controllers\Api\Customers\ads\NormalCustomerController;
 use App\Http\Controllers\Api\Commercial\PropertyCommercialController;
 use App\Http\Controllers\Api\Representatives\RepresntativeController;
 use App\Http\Controllers\Api\Customers\Profile\SubscriptionController; 
+use App\Http\Controllers\Api\Customers\Notification\NotifcationController;
 
 
 Route::get('/user', function (Request $request) {
@@ -44,7 +45,11 @@ Route::get('/user', function (Request $request) {
 
 
 
-
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('conversations', [MessageController::class, 'index']);
+    Route::get('conversations/{conversation}', [MessageController::class, 'show']);
+    Route::post('messages', [MessageController::class, 'store']);
+});
 
 Route::post('/register/email-phone', [RegisterController::class, 'registerEmailPhone']);
 Route::post('/register/complete', [RegisterController::class, 'completeRegistration']);
