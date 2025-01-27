@@ -22,7 +22,7 @@ return new class extends Migration
     
             $table->foreign('sender_id')->references('id')->on('customers');
             $table->foreign('receiver_id')->references('id')->on('customers');
-        });;
+        });
     }
 
     /**

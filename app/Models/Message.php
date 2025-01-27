@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Customers;
 use App\Models\Conversation;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Message extends Model
 {
@@ -14,7 +15,8 @@ class Message extends Model
         'sender_id',
         'receiver_id',
         'content',
-        'is_read'
+        'is_read',
+        'conversation_id'
     ];
 
     public function sender()

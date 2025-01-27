@@ -98,11 +98,13 @@ class MessageController extends Controller
 
         // Create message
         $message = Message::create([
+            'conversation_id' => $conversation->id, // Add conversation_id
             'sender_id' => $senderId,
             'receiver_id' => $receiverId,
             'content' => $request->content,
             'is_read' => false,
         ]);
+    
 
         // Update conversation's last message timestamp
         $conversation->update([

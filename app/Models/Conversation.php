@@ -5,10 +5,13 @@ namespace App\Models;
 use App\Models\Message;
 use App\Models\Customers;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 // app/Models/Conversation.php
 class Conversation extends Model
 {
+
+    
     protected $fillable = [
         'customer_one',
         'customer_two',

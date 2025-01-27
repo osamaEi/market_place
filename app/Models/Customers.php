@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Bill;
+use App\Models\Story;
 use App\Models\Banner;
 use App\Models\Country;
 use App\Models\Currency;
@@ -72,6 +73,10 @@ class Customers extends Model implements Authenticatable
     public function NormalAds(){
 
         return $this->hasMany(NormalAds::class,'customer_id');
+    }
+    public function stories(){
+
+        return $this->hasMany(Story::class,'customer_id');
     }
     public function country(){
 
