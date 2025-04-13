@@ -14,6 +14,7 @@ use App\Services\NormalAdsService;
 use Modules\Career\Models\Careers;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Modules\Electronics\Models\Mobiles;
 use App\Http\Resources\NormalAdResource;
@@ -28,40 +29,46 @@ class NormaladsController extends Controller
         $this->normalAdsService = $normalAdsService;
     }
 
-public function index(Request $request)
-{
-    // Create a query for retrieving active NormalAds
-    $query = NormalAds::Active()->Featured();
-
-    // Get the sorting parameter from the request
-    $sortType = $request->input('sort'); // Example values: 'latest', 'oldest', 'high_price', 'low_price'
-
-    // Apply sorting based on the provided sort type
-    switch ($sortType) {
-        case 'latest':
-            $query->orderBy('created_at', 'desc'); // Sort by latest
-            break;
-        case 'oldest':
-            $query->orderBy('created_at', 'asc'); // Sort by oldest
-            break;
-        case 'high_price':
-            $query->orderBy('price', 'desc'); // Sort by highest price
-            break;
-        case 'low_price':
-            $query->orderBy('price', 'asc'); // Sort by lowest price
-            break;
-        default:
-            // Default sorting (if no sort type is provided)
-            $query->orderBy('created_at', 'desc'); // Default to latest
-            break;
+    public function index(Request $request)
+    {
+        // Generate a unique cache key based on the request parameters
+        $cacheKey = 'normal_ads_' . md5(serialize($request->all()));
+    
+        // Attempt to retrieve the cached results
+        $normalAds = Cache::remember($cacheKey, now()->addHours(24), function () use ($request) {
+            // Create a query for retrieving active NormalAds
+            $query = NormalAds::Active()->Featured();
+    
+            // Get the sorting parameter from the request
+            $sortType = $request->input('sort'); // Example values: 'latest', 'oldest', 'high_price', 'low_price'
+    
+            // Apply sorting based on the provided sort type
+            switch ($sortType) {
+                case 'latest':
+                    $query->orderBy('created_at', 'desc'); // Sort by latest
+                    break;
+                case 'oldest':
+                    $query->orderBy('created_at', 'asc'); // Sort by oldest
+                    break;
+                case 'high_price':
+                    $query->orderBy('price', 'desc'); // Sort by highest price
+                    break;
+                case 'low_price':
+                    $query->orderBy('price', 'asc'); // Sort by lowest price
+                    break;
+                default:
+                    // Default sorting (if no sort type is provided)
+                    $query->orderBy('created_at', 'desc'); // Default to latest
+                    break;
+            }
+    
+            // Retrieve the sorted results
+            return $query->get();
+        });
+    
+        // Return the collection of NormalAds using the NormalAdResource
+        return NormalAdResource::collection($normalAds);
     }
-
-    // Retrieve the sorted results
-    $normalAds = $query->get();
-
-    // Return the collection of NormalAds using the NormalAdResource
-    return NormalAdResource::collection($normalAds);
-}
 
     
     /**
@@ -89,32 +96,42 @@ public function index(Request $request)
    
     public function show($id)
     {
-        $normalAd = NormalAds::findOrFail($id);
-        $customer = Auth::guard('customer')->user();
+        // Use a dynamic cache key to store the ad by its ID
+        $cacheKey = 'normalAd_' . $id;
     
-        // If owner, show the ad with all relationships regardless of status
-        if ($customer && $normalAd->customer_id === $customer->id) {
-            $normalAd->load('category', 'images', 'cars', 'bikes', 'houses', 'mobiles');
-            return new ShowNormalResource($normalAd);
-        }
+        $normalAd = Cache::remember($cacheKey, now()->addHours(24), function () use ($id) {
+            // Retrieve the ad and its related data
+            $normalAd = NormalAds::findOrFail($id);
+            $customer = Auth::guard('customer')->user();
     
-        // For non-owners, get active ad with relationships
-        $activeNormalAd = NormalAds::with('category', 'images', 'cars', 'bikes', 'houses', 'mobiles')
-            ->where('id', $id)
-            ->active()
-            ->first();
+            // If owner, show the ad with all relationships regardless of status
+            if ($customer && $normalAd->customer_id === $customer->id) {
+                $normalAd->load('category', 'images', 'cars', 'bikes', 'houses', 'mobiles');
+                return $normalAd; // Return the ad if it’s the owner
+            }
     
-        if (!$activeNormalAd) {
-            return response()->json([
-                'message' => 'Advertisement not found or not available'
-            ], 404);
-        }
+            // For non-owners, get active ad with relationships
+            $activeNormalAd = NormalAds::with('category', 'images', 'cars', 'bikes', 'houses', 'mobiles')
+                ->where('id', $id)
+                ->active()
+                ->first();
     
-        // Increment views for the original ad instance
-        $activeNormalAd->increment('views_count');
+            if (!$activeNormalAd) {
+                return response()->json([
+                    'message' => 'Advertisement not found or not available'
+                ], 404);
+            }
     
-        return new ShowNormalResource($activeNormalAd);
+            // Increment views for the original ad instance
+            $activeNormalAd->increment('views_count');
+    
+            return $activeNormalAd; // Return the active ad for non-owners
+        });
+    
+        // Return the ad as a resource
+        return new ShowNormalResource($normalAd);
     }
+    
      
     /**
      * Update the specified resource in storage.

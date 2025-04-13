@@ -12,6 +12,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Modules\Bike\Models\BikeCategory;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
+
 use Modules\House\Models\HouseCategory;
 use Modules\Career\Models\CareerCategory;
 use App\Http\Resources\CommercialResource;
@@ -23,41 +25,50 @@ class CommercialController extends Controller
      * Display a listing of the resource.
      */
     public function index(Request $request)
-{
-    $title = $request->input('title');
-    $catId = $request->input('cat_id');
+    {
+        // Generate a unique cache key based on the request parameters
+        $cacheKey = 'commercial_ads_' . md5(serialize($request->all()));
     
-    $query = CommercialAd::Active()->Featured()->with('category');
+        // Retrieve the cached results or execute the query and cache the results for 24 hours
+        $commercialAds = Cache::remember($cacheKey, now()->addHours(24), function () use ($request) {
+            // Start building the query
+            $query = CommercialAd::Active()->Featured()->with('category');
     
-    if ($title) {
-        $query->where('title', 'like', "%{$title}%");
+            // Apply filters based on request parameters
+            $title = $request->input('title');
+            $catId = $request->input('cat_id');
+    
+            if ($title) {
+                $query->where('title', 'like', "%{$title}%");
+            }
+    
+            if ($catId) {
+                $query->where('cat_id', $catId);
+            }
+    
+            // Apply sorting based on the provided sort type
+            $sortType = $request->input('sort');
+    
+            switch ($sortType) {
+                case 'latest':
+                    $query->orderBy('created_at', 'desc');
+                    break;
+                case 'oldest':
+                    $query->orderBy('created_at', 'asc');
+                    break;
+                default:
+                    // Default sorting (if no sort type is provided)
+                    $query->orderBy('created_at', 'desc');
+                    break;
+            }
+    
+            // Execute the query and return the results
+            return $query->get();
+        });
+    
+        // Return the collection of commercial ads using the CommercialResource
+        return CommercialResource::collection($commercialAds);
     }
-
-    if ($catId) {
-        $query->where('cat_id', $catId);
-    }
-    
-    
-             $sortType = $request->input('sort');
-
-    switch ($sortType) {
-        case 'latest':
-            $query->orderBy('created_at', 'desc');
-            break;
-        case 'oldest':
-            $query->orderBy('created_at', 'asc');
-            break;
-      
-        default:
-            // Default sorting (if no sort type is provided)
-            $query->orderBy('created_at', 'desc');
-            break;
-    }
-    $commercail = $query->get();
-
-    return CommercialResource::collection($commercail);
-}
-
   
     
     
@@ -134,31 +145,35 @@ class CommercialController extends Controller
      * Display the specified resource.
      */
     public function show($id)
-    {
+{
+    $commercials = Cache::remember('comercialKeyshow_' . $id, now()->addHours(24), function () use ($id) {
         $commercial = CommercialAd::findOrFail($id);
         $customer = Auth::guard('customer')->user();
-        
+
         // If it's the owner's commercial, show it regardless of status
         if ($customer && $commercial->customer_id === $customer->id) {
             return new CommercialResource($commercial);
         }
-        
-        // For non-owners, query using active scope
-        $activeCommercial = CommercialAd::where('id', $id)
-            ->active() 
-            ->first();
-         
+
+        // For non-owners, query using the active scope
+        $activeCommercial = CommercialAd::where('id', $id)->active()->first();
+
         if (!$activeCommercial) {
             return response()->json([
                 'message' => 'Commercial not found or not available'
             ], 404);
         }
-        
+
         // Increment views only for non-owners viewing active commercials
         $activeCommercial->increment('views_count');
-        
+
         return new CommercialResource($activeCommercial);
-    }
+    });
+
+    // If commercial is cached, it will be returned directly
+    return new CommercialResource($commercials);
+}
+
     /**
      * Update the specified resource in storage.
      */

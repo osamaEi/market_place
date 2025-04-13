@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Story;
 use App\Models\Banner;
 use App\Models\Filter;
 use App\Models\PopUpAds;
@@ -45,7 +46,10 @@ class Category extends Model
     } 
   
 
- 
+    public function stories()
+    {
+        return $this->hasMany(Story::class, 'cat_id');
+    }
 
     public function popupAds()
     {

@@ -37,64 +37,75 @@ class FiltrationController extends Controller
     }
     
     
+    public function showFilters($cat_id)
+    {
+        // Cache the filters based on the category ID for better performance
+        $filters = Cache::remember('filters_for_cat_' . $cat_id, now()->addHours(24), function () use ($cat_id) {
+            return Filter::where('cat_id', $cat_id)->get();
+        });
     
-public function showFilters($cat_id)
-{
-    // Fetch filters based on the category ID
-    $filters = Filter::where('cat_id', $cat_id)->get();
-
-    // Initialize an array to store features
-    $features = [];
-    $brands=[];
-
-    // Iterate over each filter and check its relation
-    foreach ($filters as $filter) {
-        // Check filter relation and fetch the relevant features
-        if ($filter->relation_name == 'cars.features') {
-            $features = CarFeature::all();
-            $brands = Brand::all();
-        } elseif ($filter->relation_name == 'houses.features') {
-            $features = Feature::all();
-        } elseif ($filter->relation_name == 'bikes.features') {
-            $features = BikeFeature::all();
+        // Initialize arrays for features and brands
+        $features = [];
+        $brands = [];
+    
+        // Iterate over each filter and check its relation to determine features and brands
+        foreach ($filters as $filter) {
+            if ($filter->relation_name == 'cars.features') {
+                $features = Cache::remember('car_features', now()->addHours(24), function () {
+                    return CarFeature::all();
+                });
+                $brands = Cache::remember('brands', now()->addHours(24), function () {
+                    return Brand::all();
+                });
+            } elseif ($filter->relation_name == 'houses.features') {
+                $features = Cache::remember('house_features', now()->addHours(24), function () {
+                    return Feature::all();
+                });
+            } elseif ($filter->relation_name == 'bikes.features') {
+                $features = Cache::remember('bike_features', now()->addHours(24), function () {
+                    return BikeFeature::all();
+                });
+            }
         }
+    
+        // Return the response with filters, features, and brands
+        return response()->json([
+            'filters' => $filters,
+            'features' => $features,
+            'brands' => $brands
+        ]);
     }
-
-    // Return the response with filters and the features based on the cat_id relation
-    return response()->json([
-        'filters' => $filters,
-        'features' => $features,
-        'brands'=>$brands
-    ]);
-}
-
-
-
+    
     public function getRelatedAds($cat_id)
     {
-        $subCategories = Category::with('normalAds')
-                                ->where('parent_id', $cat_id)
-                                ->get();
-
-       $Categories = Category::with(['commercialAds', 'banners', 'popupAds'])
-         ->where('id', $cat_id)
-        ->get();
+        // Cache the related ads data for the given category
+        $subCategories = Cache::remember('subCategories_for_' . $cat_id, now()->addHours(24), function () use ($cat_id) {
+            return Category::with('normalAds')->where('parent_id', $cat_id)->get();
+        });
     
+        $Categories = Cache::remember('categories_for_' . $cat_id, now()->addHours(24), function () use ($cat_id) {
+            return Category::with(['commercialAds', 'banners', 'popupAds'])
+                           ->where('id', $cat_id)
+                           ->get();
+        });
+    
+        // Flatten collections of ads
         $normalAds = $subCategories->flatMap->normalAds;
         $commercialAds = $Categories->flatMap->commercialAds;
         $banners = $Categories->flatMap->banners;
         $popupAds = $Categories->flatMap->popupAds;
     
-
+        // Return the response with the related ads and categories
         return response()->json([
             'MainCategories' => CategoryResource::collection($Categories),
             'subCategories' => CategoryResource::collection($subCategories),
             'normalAds' => NormalAdResource::collection($normalAds),
             'commercialAds' => CommercialResource::collection($commercialAds),
-            'banners' =>BannerResource::collection($banners),
-            'popupAds' =>PopupResource::collection($popupAds)
+            'banners' => BannerResource::collection($banners),
+            'popupAds' => PopupResource::collection($popupAds)
         ]);
     }
+    
 
 
  public function applyFilters(Request $request, $cat_id)

@@ -25,6 +25,13 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\ConfigurationController;
 use App\Http\Controllers\RepresentativeController;
+
+
+Route::get('/test-story', function () {
+    return view('story_view');
+ });
+ 
+
 Route::middleware('guest')->group(function () {
 Route::get('/', function () {
     return view('welcome');

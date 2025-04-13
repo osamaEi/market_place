@@ -7,6 +7,8 @@ use App\Models\Message;
 use App\Models\Conversation;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\ConversationResource;
+use App\Http\Resources\ShowConversationResource;
 
 
 class MessageController extends Controller
@@ -24,45 +26,28 @@ class MessageController extends Controller
             ->orderBy('last_message_at', 'desc')
             ->get();
 
-        return response()->json([
-            'success' => true,
-            'data' => $conversations
-        ]);
+        return ConversationResource::collection($conversations);
     }
 
     /**
      * Show messages for a specific conversation
      */
-    public function show(Conversation $conversation)
+    public function show($id)
     {
         $customerId = auth()->id();
         
-        // Check if user is part of the conversation
-        if ($conversation->customer_one !== $customerId && $conversation->customer_two !== $customerId) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized access to conversation'
-            ], 403);
-        }
-
-        $messages = $conversation->messages()
-            ->with(['sender', 'receiver'])
+        $messages =Message::where('conversation_id',$id)
             ->orderBy('created_at', 'desc')
+            
             ->get();
 
         // Mark unread messages as read
-        $conversation->messages()
-            ->where('receiver_id', $customerId)
+       Message::where('receiver_id', $customerId)
+       ->where('conversation_id',$id)
             ->where('is_read', false)
             ->update(['is_read' => true]);
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'conversation' => $conversation->load(['userOne', 'userTwo']),
-                'messages' => $messages
-            ]
-        ]);
+        return  ShowConversationResource::collection($messages);
     }
 
     /**
@@ -98,11 +83,13 @@ class MessageController extends Controller
 
         // Create message
         $message = Message::create([
+            'conversation_id' => $conversation->id, // Add conversation_id
             'sender_id' => $senderId,
             'receiver_id' => $receiverId,
             'content' => $request->content,
             'is_read' => false,
         ]);
+    
 
         // Update conversation's last message timestamp
         $conversation->update([

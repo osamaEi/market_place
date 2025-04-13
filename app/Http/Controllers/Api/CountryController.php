@@ -6,11 +6,14 @@ use App\Models\Country;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-
+use Illuminate\Support\Facades\Cache; 
+ 
 class CountryController extends Controller
 {
     public function index()
     {
+        $countries = Cache::remember('countryKey',now()->addHour(24),function(){
+
         $countries = Country::all();
     
         $formattedCountries = $countries->map(function ($country) {
@@ -24,6 +27,12 @@ class CountryController extends Controller
         return response()->json([
             'countries' => $formattedCountries,
         ]);
+ 
+    });
+
+    return response()->json([ 
+        'countries' => $countries, 
+    ]);
     }
 
 

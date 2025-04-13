@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\ApiCountryDetection;
+use App\Http\Controllers\Api\StoryController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\CountryController;
 use App\Http\Controllers\Api\ComplainController;
@@ -60,6 +61,14 @@ Route::post('/login/customers',[LoginController::class , 'login']);
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/total-comments-favorites', [NormalCustomerController::class,'getTotalCommentsAndFavorites']);
+    Route::get('/stories', [StoryController::class, 'index']); // Get all stories
+    Route::get('/stories/{id}', [StoryController::class, 'show']); // Get a specific story by ID
+    Route::get('/stories/mystory/{id}', [StoryController::class, 'showMystory']); // Get a specific user's story
+    Route::post('/stories', [StoryController::class, 'store']); // Create a new story
+    Route::delete('/stories/{story}', [StoryController::class, 'destroy']); // Delete a story
+    Route::post('/stories/{story}/view', [StoryController::class, 'markAsViewed']); // Mark a story as viewed
+    Route::get('/mystories', [StoryController::class, 'myStories']); // Get the authenticated us
+
 
     
     Route::post('logout/customers', [LoginController::class, 'logout']);
